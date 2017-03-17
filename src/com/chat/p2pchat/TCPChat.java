@@ -3,7 +3,6 @@ package com.chat.p2pchat;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class TCPChat {
 
@@ -19,15 +18,26 @@ public class TCPChat {
 		listen();
 	}
 
-	private void connect(String peerIpAddress) throws UnknownHostException, IOException {
-		logger.log("Connecting to peer!");
-		Socket peerSocket = new Socket(peerIpAddress, PORT);
+	private void connect(String peerIpAddress) {
+		Socket peerSocket;
+		try {
+			peerSocket = new Socket(peerIpAddress, PORT);
+		} catch (Exception e) {
+			logger.log("Error: Connection cannot be established");
+			return;
+		}
 		new Chat(logger).startChat(peerSocket);
 	}
 
 	private void listen() throws Exception {
-		logger.log("Wating for a peer!");
-		ServerSocket serverSocket = new ServerSocket(PORT);
+		logger.log("Wating for other peer program...");
+		ServerSocket serverSocket;
+		try {
+			serverSocket = new ServerSocket(PORT);
+		} catch (IOException e) {
+			logger.log("Error: port in use");
+			return;
+		}
 		Socket peerSocket = serverSocket.accept();
 		new Chat(logger).startChat(peerSocket);
 		serverSocket.close();

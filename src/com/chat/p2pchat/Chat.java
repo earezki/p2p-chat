@@ -17,11 +17,10 @@ public class Chat {
 	}
 
 	public void startChat(Socket peerSocket) {
-		logger.log("Server started!");
+		logger.log("Connection established");
 		running = true;
 		waitForUserInputs(peerSocket);
 		listenToPeerOutputs(peerSocket);
-		logger.log("Server closes.");
 	}
 
 	private void listenToPeerOutputs(Socket peerSocket) {
@@ -47,7 +46,7 @@ public class Chat {
 				Scanner scanner = new Scanner(System.in);
 				try {
 					DataOutputStream output = new DataOutputStream(peerSocket.getOutputStream());
-					logger.log("Wating for user input");
+					logger.log("Waiting for user text");
 					while (running) {
 						String userInput = scanner.nextLine();
 
@@ -75,8 +74,13 @@ public class Chat {
 	}
 
 	private void sendFile(DataOutputStream output, String filename, String filelocation) throws IOException {
-		String filepath = filelocation + "/" + filename;
-		String fileContent = readFile(filename, filelocation);
+		String fileContent;
+		try {
+			fileContent = readFile(filename, filelocation);
+		} catch (IOException e) {
+			logger.log("file does not exist");
+			return;
+		}
 		sendTextMessage(output, fileContent);
 	}
 
